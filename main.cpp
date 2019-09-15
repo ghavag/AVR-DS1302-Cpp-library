@@ -65,6 +65,21 @@ int main(void) {
   ds1302.clock_burst_write((uint8_t *) &rtc);
   #endif // SET_DATE_TIME
 
+  /*** Example for read() method ***/
+  // Demonstrate read() method by reading the date
+  printf("Read date using read() method: YYYY/MM/DD = ");
+  uint8_t data;
+
+  data = ds1302.read(DS1302_YEAR);
+  printf("%d/", 2000 + bcd2bin_b(data));
+
+  data = ds1302.read(DS1302_MONTH);
+  printf("%d/", bcd2bin_b(data));
+
+  data = ds1302.read(DS1302_DATE);
+  printf("%d\n", bcd2bin_b(data));
+  /*********************************/
+
   /* Main loop starts here */
   while(1) {
     ds1302.clock_burst_read((uint8_t *) &rtc);

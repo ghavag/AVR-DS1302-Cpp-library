@@ -2,28 +2,20 @@
 #include <util/delay.h>
 
 /*
-* Register names.
-*
-* Since the highest bit is always '1', the registers start at 0x80 If the
-* register is read, the lowest bit should be '1'.
+* Defines for the bits, to be able to change between bit number and binary
+* definition.
 */
-#define DS1302_SECONDS           0x80
-#define DS1302_MINUTES           0x82
-#define DS1302_HOURS             0x84
-#define DS1302_DATE              0x86
-#define DS1302_MONTH             0x88
-#define DS1302_DAY               0x8A
-#define DS1302_YEAR              0x8C
-#define DS1302_ENABLE            0x8E
-#define DS1302_TRICKLE           0x90
-#define DS1302_CLOCK_BURST       0xBE
-#define DS1302_CLOCK_BURST_WRITE 0xBE
-#define DS1302_CLOCK_BURST_READ  0xBF
-#define DS1302_RAMSTART          0xC0
-#define DS1302_RAMEND            0xFC
-#define DS1302_RAM_BURST         0xFE
-#define DS1302_RAM_BURST_WRITE   0xFE
-#define DS1302_RAM_BURST_READ    0xFF
+#define DS1302_D0 0
+#define DS1302_D1 1
+#define DS1302_D2 2
+#define DS1302_D3 3
+#define DS1302_D4 4
+#define DS1302_D5 5
+#define DS1302_D6 6
+#define DS1302_D7 7
+
+// Bit for reading (bit in address)
+#define DS1302_READBIT DS1302_D0 // READBIT=1: read instruction
 
 DS1302::DS1302(
   volatile uint8_t* sclk_port, volatile uint8_t* sclk_ddr, uint8_t sclk_pbn,
@@ -44,6 +36,19 @@ DS1302::DS1302(
 
   *ce_ddr |= _BV(ce_pbn);
   *ce_port &= ~(_BV(ce_pbn));
+}
+
+uint8_t DS1302::read(int address) {
+  uint8_t data;
+
+  address |= (1UL << DS1302_READBIT); // set lowest bit (read bit) in address
+
+  start();
+  togglewrite(address, true); // the I/O-line is released for the data
+  data = toggleread();
+  stop();
+
+  return data;
 }
 
 void DS1302::clock_burst_read(uint8_t *p) {
