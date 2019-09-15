@@ -64,6 +64,24 @@ void DS1302::clock_burst_read(uint8_t *p) {
   stop();
 }
 
+void DS1302::clock_burst_write(uint8_t *p) {
+  int i;
+
+  start();
+
+  /*
+  * Instead of the address, the CLOCK_BURST_WRITE command is issued. The
+  * I/O-line is not released
+  */
+  togglewrite(DS1302_CLOCK_BURST_WRITE, false);
+
+  for( i=0; i<8; i++) {
+    togglewrite(*p++, false); // the I/O-line is not released
+  }
+
+  stop();
+}
+
 void DS1302::togglewrite(uint8_t data, uint8_t release) {
   int i;
 

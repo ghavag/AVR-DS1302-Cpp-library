@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <util/delay.h>
+#include <string.h>
 
 #include "uart/uart.h"
 #include "ds1302.h"
@@ -18,10 +19,51 @@ int main(void) {
     &PORTC, &DDRC, PC0
   );
 
-  /*rtc.h24.Hour10 = 2;
-  rtc.h24.Hour = 3;
-  rtc.Minutes10 = 5;
-  rtc.Minutes = 7;*/
+  /*
+  * Un-comment the following define command to set date and time according to
+  * the variables below.
+  */
+  #define SET_DATE_TIME
+  #ifdef SET_DATE_TIME
+  int seconds, minutes, hours, dayofweek, dayofmonth, month, year;
+
+  // Hard coded date and time
+  seconds    = 0;
+  minutes    = 3;
+  hours      = 13;
+  dayofweek  = 1;  // Day of week, any day can be first, counts 1...7
+  dayofmonth = 11; // Day of month, 1...31
+  month      = 9;  // month 1...12
+  year       = 2019;
+
+  memset((char *) &rtc, 0, sizeof(rtc));
+
+  rtc.Seconds    = bin2bcd_l(seconds);
+  rtc.Seconds10  = bin2bcd_h(seconds);
+  rtc.CH         = 0; // 1 for Clock Halt, 0 to run;
+  rtc.Minutes    = bin2bcd_l(minutes);
+  rtc.Minutes10  = bin2bcd_h(minutes);
+  // To use the 12 hour format,
+  // use it like these four lines:
+  //    rtc.h12.Hour   = bin2bcd_l( hours);
+  //    rtc.h12.Hour10 = bin2bcd_h( hours);
+  //    rtc.h12.AM_PM  = 0;     // AM = 0
+  //    rtc.h12.hour_12_24 = 1; // 1 for 24 hour format
+  rtc.h24.Hour   = bin2bcd_l(hours);
+  rtc.h24.Hour10 = bin2bcd_h(hours);
+  rtc.h24.hour_12_24 = 0; // 0 for 24 hour format
+  rtc.Date       = bin2bcd_l(dayofmonth);
+  rtc.Date10     = bin2bcd_h(dayofmonth);
+  rtc.Month      = bin2bcd_l(month);
+  rtc.Month10    = bin2bcd_h(month);
+  rtc.Day        = dayofweek;
+  rtc.Year       = bin2bcd_l(year - 2000);
+  rtc.Year10     = bin2bcd_h(year - 2000);
+  rtc.WP = 0;
+
+  // Write all clock data at once (burst mode).
+  ds1302.clock_burst_write((uint8_t *) &rtc);
+  #endif // SET_DATE_TIME
 
   /* Main loop starts here */
   while(1) {
