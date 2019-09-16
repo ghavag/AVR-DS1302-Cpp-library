@@ -77,7 +77,7 @@ DS1302::DS1302(
 uint8_t DS1302::read(int address) {
   uint8_t data;
 
-  address |= (1UL << DS1302_READBIT); // set lowest bit (read bit) in address
+  address |= _BV(DS1302_READBIT); // set lowest bit (read bit) in address
 
   start();
   togglewrite(address, true); // the I/O-line is released for the data
@@ -137,7 +137,6 @@ void DS1302::togglewrite(uint8_t data, uint8_t release) {
 
   for( i = 0; i <= 7; i++) {
     // set a bit of the data on the I/O-line
-    //digitalWrite(DS1302_IO_PIN, bitRead(data, i));
     if ((data >> i) & 0x01) {
       *io_port |= _BV(io_pbn);
     } else {
@@ -146,8 +145,7 @@ void DS1302::togglewrite(uint8_t data, uint8_t release) {
 
     _delay_us(1); // tDC = 200ns
 
-    // clock up, data is read by DS1302
-    *sclk_port |= _BV(sclk_pbn); //digitalWrite( DS1302_SCLK_PIN, HIGH);
+    *sclk_port |= _BV(sclk_pbn); // clock up, data is read by DS1302
     _delay_us(1); // tCH = 1000ns, tCDH = 800ns
 
     if(release && i == 7) {
@@ -158,14 +156,10 @@ void DS1302::togglewrite(uint8_t data, uint8_t release) {
       * I/O-line at this moment, and that could cause a shortcut spike on the
       * I/O-line.
       */
-      *io_ddr &= ~(_BV(io_pbn)); //pinMode( DS1302_IO_PIN, INPUT);
+      *io_ddr &= ~(_BV(io_pbn));
       *io_port &= ~(_BV(io_pbn));
-
-      // For Arduino 1.0.3, removing the pull-up is no longer needed.
-      // Setting the pin as 'INPUT' will already remove the pull-up.
-      // digitalWrite (DS1302_IO, LOW); // remove any pull-up
     } else {
-      *sclk_port &= ~(_BV(sclk_pbn)); //digitalWrite( DS1302_SCLK_PIN, LOW);
+      *sclk_port &= ~(_BV(sclk_pbn));
       _delay_us(1); // tCL=1000ns, tCDD=800ns
     }
   }
@@ -181,29 +175,22 @@ uint8_t DS1302::toggleread(void) {
     * Issue a clock pulse for the next databit. If the 'togglewrite' function
     * was used before this function, the SCLK is already high.
     */
-    *sclk_port |= _BV(sclk_pbn); //digitalWrite( DS1302_SCLK_PIN, HIGH);
-    _delay_us(1); //delayMicroseconds( 1);
+    *sclk_port |= _BV(sclk_pbn);
+    _delay_us(1);
 
     // Clock down, data is ready after some time.
-    *sclk_port &= ~(_BV(sclk_pbn)); //digitalWrite( DS1302_SCLK_PIN, LOW);
-    _delay_us(1); //delayMicroseconds( 1);        // tCL=1000ns, tCDD=800ns
+    *sclk_port &= ~(_BV(sclk_pbn));
+    _delay_us(1); // tCL=1000ns, tCDD=800ns
 
     // read bit, and set it in place in 'data' variable
-    //bitWrite( data, i, digitalRead( DS1302_IO_PIN));
-    if (*io_pin & _BV(io_pbn)) data |= (1UL << i);
+    if (*io_pin & _BV(io_pbn)) data |= _BV(i);
   }
 
   return data;
 }
 
 void DS1302::start(void) {
-  /*digitalWrite( DS1302_CE_PIN, LOW); // default, not enabled
-  pinMode( DS1302_CE_PIN, OUTPUT);
-
-  digitalWrite( DS1302_SCLK_PIN, LOW); // default, clock low
-  pinMode( DS1302_SCLK_PIN, OUTPUT);*/
-
-  *io_ddr |= _BV(io_pbn); //pinMode( DS1302_IO_PIN, OUTPUT);
+  *io_ddr |= _BV(io_pbn);
 
   *ce_port |= _BV(ce_pbn); // start the session
   _delay_us(4); // tCC = 4us

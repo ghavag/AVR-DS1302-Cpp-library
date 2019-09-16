@@ -33,10 +33,14 @@ int main(void) {
   stdout = &uart_output;
   stdin  = &uart_input;
 
+  /*
+  * Each of the three pins, serial clock (SCLK), data (IO) and chip enable (CE),
+  * of the DS1302 IC needs to be connected to an pin of the Ardunio/ATmega.
+  */
   DS1302 ds1302 = DS1302(
-    &PORTC, &DDRC, PC2,
-    &PORTC, &DDRC, &PINC, PC1,
-    &PORTC, &DDRC, PC0
+    &PORTC, &DDRC, PC2, // SCLK at Arduino port A2 (ATmega port C pin 2)
+    &PORTC, &DDRC, &PINC, PC1, // IO at Arduino port A1 (ATmega port C pin 1)
+    &PORTC, &DDRC, PC0 // CE at Arduino port A0 (ATmega port C pin 0)
   );
 
   /*
