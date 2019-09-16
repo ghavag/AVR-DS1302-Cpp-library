@@ -23,7 +23,7 @@
 #include <string.h>
 
 #include "uart/uart.h"
-#include "ds1302.h"
+#include "../ds1302.h"
 
 int main(void) {
   ds1302_struct rtc;

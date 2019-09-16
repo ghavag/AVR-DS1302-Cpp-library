@@ -4,8 +4,8 @@ F_CPU = 16000000
 CC=avr-gcc
 CFLAGS=-mmcu=$(DEVICE) -DF_CPU=$(F_CPU) -Os
 PFLAGS=-p $(DEVICE) -c arduino -P /dev/ttyUSB0 -b 57600
-PROJNAME=ds1302_cpp_lib_test
-SRC = main.cpp uart/uart.c ds1302.cpp
+PROJNAME=ds1302_example
+SRC = example.cpp uart/uart.c ../ds1302.cpp
 OFILE=$(PROJNAME).elf
 
 # Define all object files.
