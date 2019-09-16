@@ -51,6 +51,15 @@ uint8_t DS1302::read(int address) {
   return data;
 }
 
+void DS1302::write(int address, uint8_t data) {
+  address &= ~(_BV(DS1302_READBIT)); // clear lowest bit (read bit) in address
+
+  start();
+  togglewrite(address, false); // don't release the I/O-line
+  togglewrite(data, false); // don't release the I/O-line
+  stop();
+}
+
 void DS1302::clock_burst_read(uint8_t *p) {
   int i;
 

@@ -23,7 +23,7 @@ int main(void) {
   * Un-comment the following define command to set date and time according to
   * the variables below.
   */
-  #define SET_DATE_TIME
+  //#define SET_DATE_TIME
   #ifdef SET_DATE_TIME
   int seconds, minutes, hours, dayofweek, dayofmonth, month, year;
 
@@ -77,10 +77,51 @@ int main(void) {
   printf("%d/", bcd2bin_b(data));
 
   data = ds1302.read(DS1302_DATE);
-  printf("%d\n", bcd2bin_b(data));
+  printf("%d\n\n", bcd2bin_b(data));
   /*********************************/
 
-  /* Main loop starts here */
+  /*** Example for write() method ***/
+  /*
+  * Demonstration of write() method by reading the time, writing it, reading it
+  * again and write back the original time.
+  */
+  printf("Demonstration of the write() method\n");
+  uint8_t a_data[4];
+
+  // Reading the current (original) time
+  a_data[0] = ds1302.read(DS1302_HOURS);
+  a_data[1] = ds1302.read(DS1302_MINUTES);
+  a_data[2] = ds1302.read(DS1302_SECONDS);
+  printf("\tRead the following time: %02d:%02d:%02d\n",
+    bcd2bin_b(a_data[0]), bcd2bin_b(a_data[1]), bcd2bin_b(a_data[2]));
+
+  // Set another time
+  printf("\tSet the time to 12:34:56...\n");
+  ds1302.write(DS1302_HOURS, bin2bcd_b(12));
+  ds1302.write(DS1302_MINUTES, bin2bcd_b(34));
+  ds1302.write(DS1302_SECONDS, bin2bcd_b(56));
+
+  // Read the time we have just set
+  printf("\t...and read it again: ");
+
+  data = ds1302.read(DS1302_HOURS);
+  printf("%02d:", bcd2bin_b(data));
+
+  data = ds1302.read(DS1302_MINUTES);
+  printf("%02d:", bcd2bin_b(data));
+
+  data = ds1302.read(DS1302_SECONDS);
+  printf("%02d\n", bcd2bin_b(data));
+
+  // Set the time back to it's original value
+  ds1302.write(DS1302_HOURS, a_data[0]);
+  ds1302.write(DS1302_MINUTES, a_data[1]);
+  ds1302.write(DS1302_SECONDS, a_data[2]);
+  /**********************************/
+
+  /* Date/time reading loop starts here */
+  printf("\n=== Starting date and time reading loop ===\n");
+
   while(1) {
     ds1302.clock_burst_read((uint8_t *) &rtc);
 

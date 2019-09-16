@@ -37,6 +37,7 @@
 #define bcd2bin_b(x) ((((x & 0xF0) >> 4) * 10) + (x & 0x0F))
 #define bin2bcd_h(x) ((x)/10)
 #define bin2bcd_l(x) ((x)%10)
+#define bin2bcd_b(x) ((((x)/10) << 4) + ((x)%10))
 
 /*
 * Structure for the first 8 registers. These 8 bytes can be read at once with
