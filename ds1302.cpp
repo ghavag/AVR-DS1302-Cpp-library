@@ -31,11 +31,21 @@ DS1302::DS1302(
   this->io_pin = io_pin;
   this->io_pbn = io_pbn;
 
-  *sclk_ddr |= _BV(sclk_pbn); // Configure pin as output
+  *sclk_ddr |= _BV(sclk_pbn); // Configure pin for SCLK as output
   *sclk_port &= ~(_BV(sclk_pbn)); // Set initial state to low
 
+  // Do the same for CE pin
   *ce_ddr |= _BV(ce_pbn);
   *ce_port &= ~(_BV(ce_pbn));
+
+  /*
+  * Start by clearing the Write Protect bit. Otherwise the clock data cannot be
+  * written. The whole register is written, but the WP-bit is the only bit in
+  * that register.
+  */
+  write(DS1302_ENABLE, 0);
+
+  write(DS1302_TRICKLE, 0x00); // Disable Trickle Charger.
 }
 
 uint8_t DS1302::read(int address) {
